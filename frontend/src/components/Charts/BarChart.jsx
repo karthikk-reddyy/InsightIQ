@@ -1,82 +1,97 @@
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
 } from "recharts";
+
+import { useDataset } from "../../context/DatasetContext";
 
 function BarChartComponent({ data }) {
 
-  if (!data || data.length === 0) return null;
+    const {
 
-  // Group Sales by Product
-  const grouped = {};
+        xAxis,
 
-  data.forEach((row) => {
+        yAxis
 
-    const product = row.Product;
+    } = useDataset();
 
-    const sales = Number(row.Sales);
+    if (!data || data.length === 0 || !xAxis || !yAxis)
+        return null;
 
-    if (!grouped[product]) {
+    const grouped = {};
 
-      grouped[product] = 0;
+    data.forEach((row) => {
 
-    }
+        const category = row[xAxis];
 
-    grouped[product] += sales;
+        const value = Number(row[yAxis]);
 
-  });
+        if (isNaN(value))
+            return;
 
-  const chartData = Object.keys(grouped).map((product) => ({
+        if (!grouped[category]) {
 
-    Product: product,
+            grouped[category] = 0;
 
-    Sales: grouped[product],
+        }
 
-  }));
+        grouped[category] += value;
 
-  return (
+    });
 
-    <div className="bg-white rounded-2xl shadow-lg mt-8 p-6">
+    const chartData = Object.keys(grouped).map((key) => ({
 
-      <h2 className="text-2xl font-bold mb-6">
+        [xAxis]: key,
 
-        Sales by Product
+        [yAxis]: grouped[key]
 
-      </h2>
+    }));
 
-      <ResponsiveContainer
-        width="100%"
-        height={350}
-      >
+    return (
 
-        <BarChart data={chartData}>
+        <div className="bg-white rounded-2xl shadow-lg p-6">
 
-          <CartesianGrid strokeDasharray="3 3" />
+            <h2 className="text-2xl font-bold mb-6">
 
-          <XAxis dataKey="Product" />
+                {yAxis} by {xAxis}
 
-          <YAxis />
+            </h2>
 
-          <Tooltip />
+            <ResponsiveContainer
+                width="100%"
+                height={350}
+            >
 
-          <Bar
-            dataKey="Sales"
-            fill="#2563eb"
-            radius={[8, 8, 0, 0]}
-          />
+                <BarChart
+                    data={chartData}
+                >
 
-        </BarChart>
+                    <CartesianGrid strokeDasharray="3 3"/>
 
-      </ResponsiveContainer>
+                    <XAxis dataKey={xAxis}/>
 
-    </div>
+                    <YAxis/>
 
-  );
+                    <Tooltip/>
+
+                    <Bar
+                        dataKey={yAxis}
+                        fill="#2563eb"
+                        radius={[8,8,0,0]}
+                    />
+
+                </BarChart>
+
+            </ResponsiveContainer>
+
+        </div>
+
+    );
 
 }
 

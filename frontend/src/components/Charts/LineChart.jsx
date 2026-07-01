@@ -1,65 +1,99 @@
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
 } from "recharts";
+
+import { useDataset } from "../../context/DatasetContext";
 
 function LineChartComponent({ data }) {
 
-  if (!data || data.length === 0) return null;
+    const {
 
-  // Create line chart data
-  const chartData = data.map((row) => ({
+        xAxis,
 
-    Date: row.Date,
+        yAxis
 
-    Sales: Number(row.Sales),
+    } = useDataset();
 
-  }));
+    if (!data || data.length === 0 || !xAxis || !yAxis)
+        return null;
 
-  return (
+    const grouped = {};
 
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    data.forEach((row) => {
 
-      <h2 className="text-2xl font-bold mb-6">
+        const category = row[xAxis];
 
-        Sales Trend
+        const value = Number(row[yAxis]);
 
-      </h2>
+        if (isNaN(value))
+            return;
 
-      <ResponsiveContainer
-        width="100%"
-        height={350}
-      >
+        if (!grouped[category]) {
 
-        <LineChart data={chartData}>
+            grouped[category] = 0;
 
-          <CartesianGrid strokeDasharray="3 3" />
+        }
 
-          <XAxis dataKey="Date" />
+        grouped[category] += value;
 
-          <YAxis />
+    });
 
-          <Tooltip />
+    const chartData = Object.keys(grouped).map((key) => ({
 
-          <Line
-            type="monotone"
-            dataKey="Sales"
-            stroke="#2563eb"
-            strokeWidth={3}
-          />
+        [xAxis]: key,
 
-        </LineChart>
+        [yAxis]: grouped[key]
 
-      </ResponsiveContainer>
+    }));
 
-    </div>
+    return (
 
-  );
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+
+            <h2 className="text-2xl font-bold mb-6">
+
+                {yAxis} Trend
+
+            </h2>
+
+            <ResponsiveContainer
+                width="100%"
+                height={350}
+            >
+
+                <LineChart
+                    data={chartData}
+                >
+
+                    <CartesianGrid strokeDasharray="3 3"/>
+
+                    <XAxis dataKey={xAxis}/>
+
+                    <YAxis/>
+
+                    <Tooltip/>
+
+                    <Line
+                        type="monotone"
+                        dataKey={yAxis}
+                        stroke="#2563eb"
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                    />
+
+                </LineChart>
+
+            </ResponsiveContainer>
+
+        </div>
+
+    );
 
 }
 

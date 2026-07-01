@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDataset } from "../../context/DatasetContext";
 
 function FilterBar() {
@@ -7,44 +7,57 @@ function FilterBar() {
 
         datasetInfo,
 
-        filteredData,
-
         setFilteredData
 
     } = useDataset();
 
-    const [region, setRegion] = useState("All");
+    const [selectedColumn, setSelectedColumn] = useState("");
 
-    const [category, setCategory] = useState("All");
+    const [selectedValue, setSelectedValue] = useState("");
 
-    const [product, setProduct] = useState("All");
-
+    // Initialize data whenever a new dataset is uploaded
     useEffect(() => {
 
-        if (!datasetInfo) return;
+        if (datasetInfo?.data) {
+
+            setFilteredData(datasetInfo.data);
+
+        }
+
+    }, [datasetInfo]);
+
+    // Get unique values for the selected column
+    const values = useMemo(() => {
+
+        if (!selectedColumn || !datasetInfo?.data) return [];
+
+        return [
+
+            "All",
+
+            ...new Set(
+
+                datasetInfo.data.map(row => String(row[selectedColumn]))
+
+            )
+
+        ];
+
+    }, [selectedColumn, datasetInfo]);
+
+    // Apply filter automatically
+    useEffect(() => {
+
+        if (!datasetInfo?.data) return;
 
         let data = [...datasetInfo.data];
 
-        if (region !== "All") {
+        if (selectedColumn && selectedValue && selectedValue !== "All") {
 
             data = data.filter(
-                row => row.Region === region
-            );
 
-        }
+                row => String(row[selectedColumn]) === selectedValue
 
-        if (category !== "All") {
-
-            data = data.filter(
-                row => row.Category === category
-            );
-
-        }
-
-        if (product !== "All") {
-
-            data = data.filter(
-                row => row.Product === product
             );
 
         }
@@ -53,47 +66,15 @@ function FilterBar() {
 
     }, [
 
-        region,
+        selectedColumn,
 
-        category,
-
-        product,
+        selectedValue,
 
         datasetInfo
 
     ]);
 
     if (!datasetInfo) return null;
-
-    const regions = [
-
-        "All",
-
-        ...new Set(
-            datasetInfo.data.map(row => row.Region)
-        )
-
-    ];
-
-    const categories = [
-
-        "All",
-
-        ...new Set(
-            datasetInfo.data.map(row => row.Category)
-        )
-
-    ];
-
-    const products = [
-
-        "All",
-
-        ...new Set(
-            datasetInfo.data.map(row => row.Product)
-        )
-
-    ];
 
     return (
 
@@ -105,61 +86,107 @@ function FilterBar() {
 
             </h2>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
 
-                <select
+                <div>
 
-                    className="border rounded-xl p-3"
+                    <label className="font-semibold">
 
-                    value={region}
+                        Filter Column
 
-                    onChange={(e)=>setRegion(e.target.value)}
+                    </label>
 
-                >
+                    <select
 
-                    {regions.map(r=>(
+                        className="w-full border rounded-xl p-3 mt-2"
 
-                        <option key={r}>{r}</option>
+                        value={selectedColumn}
 
-                    ))}
+                        onChange={(e) => {
 
-                </select>
+                            setSelectedColumn(e.target.value);
 
-                <select
+                            setSelectedValue("");
 
-                    className="border rounded-xl p-3"
+                        }}
 
-                    value={category}
+                    >
 
-                    onChange={(e)=>setCategory(e.target.value)}
+                        <option value="">
 
-                >
+                            Select Column
 
-                    {categories.map(c=>(
+                        </option>
 
-                        <option key={c}>{c}</option>
+                        {datasetInfo.categorical_columns.map(col => (
 
-                    ))}
+                            <option
 
-                </select>
+                                key={col}
 
-                <select
+                                value={col}
 
-                    className="border rounded-xl p-3"
+                            >
 
-                    value={product}
+                                {col}
 
-                    onChange={(e)=>setProduct(e.target.value)}
+                            </option>
 
-                >
+                        ))}
 
-                    {products.map(p=>(
+                    </select>
 
-                        <option key={p}>{p}</option>
+                </div>
 
-                    ))}
+                <div>
 
-                </select>
+                    <label className="font-semibold">
+
+                        Filter Value
+
+                    </label>
+
+                    <select
+
+                        className="w-full border rounded-xl p-3 mt-2"
+
+                        value={selectedValue}
+
+                        disabled={!selectedColumn}
+
+                        onChange={(e) =>
+
+                            setSelectedValue(e.target.value)
+
+                        }
+
+                    >
+
+                        <option value="">
+
+                            Select Value
+
+                        </option>
+
+                        {values.map(value => (
+
+                            <option
+
+                                key={value}
+
+                                value={value}
+
+                            >
+
+                                {value}
+
+                            </option>
+
+                        ))}
+
+                    </select>
+
+                </div>
 
             </div>
 
