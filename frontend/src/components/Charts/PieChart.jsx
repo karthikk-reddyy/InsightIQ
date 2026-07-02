@@ -1,61 +1,109 @@
-
 import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    Legend
 } from "recharts";
 
-function PieChartComponent({ datasetInfo }) {
+import { useDataset } from "../../context/DatasetContext";
 
-  if (!datasetInfo) return null;
+const COLORS = [
+    "#2563eb",
+    "#16a34a",
+    "#f59e0b",
+    "#dc2626",
+    "#9333ea",
+    "#0891b2",
+    "#ea580c",
+    "#7c3aed"
+];
 
-  const data = [
-    { name: "Rows", value: datasetInfo.rows },
-    { name: "Columns", value: datasetInfo.columns },
-    { name: "Missing", value: datasetInfo.missing_values },
-  ];
+function PieChartComponent({ data }) {
 
-  const COLORS = ["#3B82F6", "#10B981", "#EF4444"];
+    const { xAxis, yAxis } = useDataset();
 
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    if (!data || data.length === 0 || !xAxis || !yAxis)
+        return null;
 
-      <h2 className="text-xl font-bold mb-4">
-        Dataset Distribution
-      </h2>
+    const grouped = {};
 
-      <ResponsiveContainer width="100%" height={300}>
+    data.forEach((row) => {
 
-        <PieChart>
+        const category = row[xAxis];
 
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={90}
-            label
-          >
+        const value = Number(row[yAxis]);
 
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
+        if (isNaN(value))
+            return;
 
-          </Pie>
+        if (!grouped[category]) {
 
-          <Tooltip />
+            grouped[category] = 0;
 
-        </PieChart>
+        }
 
-      </ResponsiveContainer>
+        grouped[category] += value;
 
-    </div>
-  );
+    });
+
+    const pieData = Object.keys(grouped).map((key) => ({
+
+        name: key,
+
+        value: grouped[key]
+
+    }));
+
+    return (
+
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+
+            <h2 className="text-2xl font-bold mb-6">
+
+                {yAxis} Distribution
+
+            </h2>
+
+            <ResponsiveContainer
+                width="100%"
+                height={350}
+            >
+
+                <PieChart>
+
+                    <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        outerRadius={120}
+                        label
+                    >
+
+                        {pieData.map((entry, index) => (
+
+                            <Cell
+                                key={index}
+                                fill={COLORS[index % COLORS.length]}
+                            />
+
+                        ))}
+
+                    </Pie>
+
+                    <Tooltip />
+
+                    <Legend />
+
+                </PieChart>
+
+            </ResponsiveContainer>
+
+        </div>
+
+    );
+
 }
 
 export default PieChartComponent;
-

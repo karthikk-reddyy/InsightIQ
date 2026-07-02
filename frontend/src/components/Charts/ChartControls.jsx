@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import { useDataset } from "../../context/DatasetContext";
 
 function ChartControls() {
@@ -7,6 +6,9 @@ function ChartControls() {
     const {
 
         datasetInfo,
+
+        chartType,
+        setChartType,
 
         xAxis,
         setXAxis,
@@ -21,19 +23,45 @@ function ChartControls() {
         if (!datasetInfo)
             return;
 
-        if (!xAxis && datasetInfo.categorical_columns.length > 0) {
+        if (chartType === "Scatter") {
 
-            setXAxis(datasetInfo.categorical_columns[0]);
+            if (
+                !xAxis ||
+                !datasetInfo.numeric_columns.includes(xAxis)
+            ) {
+                setXAxis(datasetInfo.numeric_columns[0] || "");
+            }
+
+            if (
+                !yAxis ||
+                !datasetInfo.numeric_columns.includes(yAxis)
+            ) {
+                setYAxis(
+                    datasetInfo.numeric_columns[1] ||
+                    datasetInfo.numeric_columns[0] ||
+                    ""
+                );
+            }
+
+        } else {
+
+            if (
+                !xAxis ||
+                !datasetInfo.categorical_columns.includes(xAxis)
+            ) {
+                setXAxis(datasetInfo.categorical_columns[0] || "");
+            }
+
+            if (
+                !yAxis ||
+                !datasetInfo.numeric_columns.includes(yAxis)
+            ) {
+                setYAxis(datasetInfo.numeric_columns[0] || "");
+            }
 
         }
 
-        if (!yAxis && datasetInfo.numeric_columns.length > 0) {
-
-            setYAxis(datasetInfo.numeric_columns[0]);
-
-        }
-
-    }, [datasetInfo]);
+    }, [datasetInfo, chartType]);
 
     if (!datasetInfo)
         return null;
@@ -48,13 +76,44 @@ function ChartControls() {
 
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-3 gap-6">
+
+                {/* Chart Type */}
 
                 <div>
 
                     <label className="font-semibold">
 
-                        X-Axis
+                        Chart Type
+
+                    </label>
+
+                    <select
+
+                        className="w-full border rounded-xl p-3 mt-2"
+
+                        value={chartType}
+
+                        onChange={(e)=>setChartType(e.target.value)}
+
+                    >
+
+                        <option value="Bar">Bar Chart</option>
+                        <option value="Line">Line Chart</option>
+                        <option value="Pie">Pie Chart</option>
+                        <option value="Scatter">Scatter Plot</option>
+
+                    </select>
+
+                </div>
+
+                {/* X Axis */}
+
+                <div>
+
+                    <label className="font-semibold">
+
+                        X Axis
 
                     </label>
 
@@ -68,14 +127,14 @@ function ChartControls() {
 
                     >
 
-                        {datasetInfo.categorical_columns.map(col=>(
+                        {(chartType === "Scatter"
+                            ? datasetInfo.numeric_columns
+                            : datasetInfo.categorical_columns
+                        ).map(col => (
 
                             <option
-
                                 key={col}
-
                                 value={col}
-
                             >
 
                                 {col}
@@ -88,11 +147,13 @@ function ChartControls() {
 
                 </div>
 
+                {/* Y Axis */}
+
                 <div>
 
                     <label className="font-semibold">
 
-                        Y-Axis
+                        Y Axis
 
                     </label>
 
@@ -106,14 +167,11 @@ function ChartControls() {
 
                     >
 
-                        {datasetInfo.numeric_columns.map(col=>(
+                        {datasetInfo.numeric_columns.map(col => (
 
                             <option
-
                                 key={col}
-
                                 value={col}
-
                             >
 
                                 {col}

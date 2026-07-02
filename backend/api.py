@@ -9,7 +9,12 @@ from pydantic import BaseModel
 import shutil
 from prophet import Prophet
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
+from pdf_report import generate_pdf
+current_report = None
 current_df = None
+from fastapi.responses import FileResponse
+from pdf_report import generate_pdf
 class ForecastRequest(BaseModel):
     column: str
     periods: int
@@ -95,6 +100,21 @@ async def upload_dataset(file: UploadFile = File(...)):
 
     missing_values = int(df.isna().sum().sum())
     duplicates = int(df.duplicated().sum())
+    # ==========================
+    # Dataset Quality Score
+    # ==========================
+
+    if missing_values == 0 and duplicates == 0:
+
+        quality = "Excellent"
+
+    elif missing_values < rows * 0.05:
+
+        quality = "Good"
+
+    else:
+
+        quality = "Needs Cleaning"
 
     memory_usage = round(
         df.memory_usage(deep=True).sum() / (1024 * 1024),
@@ -114,6 +134,84 @@ async def upload_dataset(file: UploadFile = File(...)):
         .fillna("")
         .to_dict(orient="records")
     )
+    # -------------------------
+    # Detect Primary KPI
+    # -------------------------
+
+    preferred_columns = [
+        "Sales",
+        "Revenue",
+        "Amount",
+        "Profit",
+        "Income",
+        "Price",
+        "Cost"
+    ]
+
+    numeric_columns = list(df.select_dtypes(include="number").columns)
+
+    primary_kpi = None
+
+    for col in preferred_columns:
+        if col in df.columns:
+            primary_kpi = col
+            break
+
+    if primary_kpi is None and numeric_columns:
+        primary_kpi = numeric_columns[0]
+
+    # -------------------------
+    # Business KPIs
+    # -------------------------
+
+    kpis = {}
+
+    if primary_kpi:
+
+        kpis = {
+
+            "column": str(primary_kpi),
+
+            "total": float(df[primary_kpi].sum()),
+
+            "average": float(df[primary_kpi].mean()),
+
+            "maximum": float(df[primary_kpi].max()),
+
+            "minimum": float(df[primary_kpi].min())
+
+        }
+        # =====================================================
+        # Top Performers
+        # =====================================================
+
+        top_performers = {}
+
+        if primary_kpi:
+
+            for col in categorical_columns:
+
+                try:
+
+                    grouped = (
+                        df.groupby(col)[primary_kpi]
+                        .sum()
+                        .sort_values(ascending=False)
+                    )
+
+                    if len(grouped) > 0:
+
+                        top_performers[col] = {
+
+                            "name": str(grouped.index[0]),
+
+                            "value": float(grouped.iloc[0])
+
+                        }
+
+                except:
+
+                    pass
 
     # ---------- Gemini AI ----------
     prompt = f"""
@@ -175,7 +273,13 @@ Keep response below 150 words.
         "categorical_columns": categorical_columns,
 
         "preview": preview,
-        
+
+        "top_performers": top_performers,
+
+        "kpis": kpis,
+
+        "quality": quality,
+
         "data": df.fillna("").to_dict(orient="records"),
 
         "ai_summary": ai_summary,
@@ -598,5 +702,160 @@ Keep the answer under 120 words.
         "ai_analysis": ai_analysis
 
     }
+from fastapi.responses import FileResponse
+
+@app.get("/download-report")
+def download_report():
+
+    global current_df
+
+    if current_df is None:
+
+        return {
+            "error": "No dataset uploaded."
+        }
+
+    # -----------------------------
+    # Dataset Information
+    # -----------------------------
+
+    rows = len(current_df)
+
+    columns = len(current_df.columns)
+
+    missing_values = int(current_df.isna().sum().sum())
+
+    duplicates = int(current_df.duplicated().sum())
+
+    # -----------------------------
+    # Detect Primary KPI
+    # -----------------------------
+
+    numeric_columns = list(
+        current_df.select_dtypes(include="number").columns
+    )
+
+    preferred_columns = [
+        "Sales",
+        "Revenue",
+        "Amount",
+        "Profit",
+        "Income",
+        "Price",
+        "Cost"
+    ]
+
+    primary_kpi = None
+
+    for col in preferred_columns:
+
+        if col in current_df.columns:
+
+            primary_kpi = col
+
+            break
+
+    if primary_kpi is None and len(numeric_columns) > 0:
+
+        primary_kpi = numeric_columns[0]
+
+    # -----------------------------
+    # KPIs
+    # -----------------------------
+
+    kpis = {
+
+        "column": "",
+
+        "total": 0,
+
+        "average": 0,
+
+        "maximum": 0,
+
+        "minimum": 0
+
+    }
+
+    if primary_kpi:
+
+        kpis = {
+
+            "column": primary_kpi,
+
+            "total": float(current_df[primary_kpi].sum()),
+
+            "average": float(current_df[primary_kpi].mean()),
+
+            "maximum": float(current_df[primary_kpi].max()),
+
+            "minimum": float(current_df[primary_kpi].min())
+
+        }
+
+    # -----------------------------
+    # AI Summary
+    # -----------------------------
+
+    ai_summary = "AI Summary unavailable."
+
+    try:
+
+        prompt = f"""
+
+Generate a short business summary.
+
+Rows: {rows}
+
+Columns: {columns}
+
+Primary KPI: {primary_kpi}
+
+"""
+
+        response = gemini_model.generate_content(prompt)
+
+        ai_summary = response.text
+
+    except:
+
+        pass
+
+    # -----------------------------
+    # Data passed to PDF
+    # -----------------------------
+
+    report_data = {
+
+        "filename": "Uploaded Dataset",
+
+        "rows": rows,
+
+        "columns": columns,
+
+        "missing_values": missing_values,
+
+        "duplicates": duplicates,
+
+        "kpis": kpis,
+
+        "ai_summary": ai_summary
+
+    }
+
+    pdf_path = "InsightIQ_Report.pdf"
+
+    generate_pdf(report_data, pdf_path)
+
+    return FileResponse(
+
+        pdf_path,
+
+        filename="InsightIQ_Report.pdf",
+
+        media_type="application/pdf"
+
+    )
+
 
 

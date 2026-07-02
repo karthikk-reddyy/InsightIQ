@@ -7,7 +7,7 @@ export function DatasetProvider({ children }) {
     // Uploaded Dataset
     const [datasetInfo, setDatasetInfo] = useState(null);
 
-    // Chart Data (optional if you still use backend chart API)
+    // Chart Data
     const [chartData, setChartData] = useState(null);
 
     // Filtered Dataset
@@ -17,6 +17,9 @@ export function DatasetProvider({ children }) {
     const [xAxis, setXAxis] = useState("");
 
     const [yAxis, setYAxis] = useState("");
+
+    // Selected Chart Type
+    const [chartType, setChartType] = useState("Bar");
 
     return (
 
@@ -40,7 +43,11 @@ export function DatasetProvider({ children }) {
                 setXAxis,
 
                 yAxis,
-                setYAxis
+                setYAxis,
+
+                // Chart Type
+                chartType,
+                setChartType
 
             }}
         >
