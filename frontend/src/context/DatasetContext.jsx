@@ -4,22 +4,39 @@ const DatasetContext = createContext();
 
 export function DatasetProvider({ children }) {
 
-    // Uploaded Dataset
+    // ==========================
+    // Dataset
+    // ==========================
+
     const [datasetInfo, setDatasetInfo] = useState(null);
 
-    // Chart Data
     const [chartData, setChartData] = useState(null);
 
-    // Filtered Dataset
     const [filteredData, setFilteredData] = useState([]);
 
-    // Selected Chart Axes
+    // ==========================
+    // Chart Settings
+    // ==========================
+
+    const [chartType, setChartType] = useState("Bar");
+
     const [xAxis, setXAxis] = useState("");
 
     const [yAxis, setYAxis] = useState("");
 
-    // Selected Chart Type
-    const [chartType, setChartType] = useState("Bar");
+    // ==========================
+    // User Settings
+    // ==========================
+
+    const [username, setUsername] = useState("");
+
+    const [company, setCompany] = useState("");
+
+    const [theme, setTheme] = useState("Light");
+
+    const [defaultChart, setDefaultChart] = useState("Bar");
+
+    const [aiResponse, setAIResponse] = useState("Medium");
 
     return (
 
@@ -30,24 +47,37 @@ export function DatasetProvider({ children }) {
                 datasetInfo,
                 setDatasetInfo,
 
-                // Charts
                 chartData,
                 setChartData,
 
-                // Filters
                 filteredData,
                 setFilteredData,
 
-                // Dynamic Chart Axes
+                // Charts
+                chartType,
+                setChartType,
+
                 xAxis,
                 setXAxis,
 
                 yAxis,
                 setYAxis,
 
-                // Chart Type
-                chartType,
-                setChartType
+                // Settings
+                username,
+                setUsername,
+
+                company,
+                setCompany,
+
+                theme,
+                setTheme,
+
+                defaultChart,
+                setDefaultChart,
+
+                aiResponse,
+                setAIResponse
 
             }}
         >

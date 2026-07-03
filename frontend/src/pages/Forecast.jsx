@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useDataset } from "../context/DatasetContext";
 import API from "../services/api";
+
 import {
+    ResponsiveContainer,
     LineChart,
     Line,
     CartesianGrid,
     XAxis,
     YAxis,
-    Tooltip,
-    ResponsiveContainer
+    Tooltip
 } from "recharts";
 
 function Forecast() {
@@ -16,38 +17,67 @@ function Forecast() {
     const { datasetInfo } = useDataset();
 
     const [column, setColumn] = useState("");
-
     const [periods, setPeriods] = useState(30);
 
     const [forecast, setForecast] = useState([]);
-
     const [aiAnalysis, setAIAnalysis] = useState("");
 
     const [loading, setLoading] = useState(false);
 
     if (!datasetInfo) {
+
         return (
+
             <div className="text-center mt-20">
+
                 <h1 className="text-3xl font-bold">
+
                     Forecasting
+
                 </h1>
 
                 <p className="text-gray-500 mt-4">
-                    Upload a dataset first from Dashboard.
+
+                    Upload a dataset first.
+
                 </p>
+
             </div>
+
         );
+
     }
 
-    // ==============================
-    // Generate Forecast
-    // ==============================
+    const growth =
+
+        forecast.length > 1
+
+            ? (
+
+                (
+
+                    forecast[forecast.length - 1].prediction -
+
+                    forecast[0].prediction
+
+                )
+
+                /
+
+                forecast[0].prediction
+
+            ) * 100
+
+            : 0;
 
     const generateForecast = async () => {
 
-        if (column === "") {
+        if (!column) {
+
             alert("Select a numeric column");
+
             return;
+
         }
 
         try {
@@ -62,8 +92,6 @@ function Forecast() {
 
             });
 
-            console.log(response.data);
-
             setForecast(response.data.forecast);
 
             setAIAnalysis(response.data.ai_analysis);
@@ -74,7 +102,7 @@ function Forecast() {
 
             console.log(err);
 
-            alert("Forecast Failed");
+            alert("Forecast generation failed.");
 
         }
 
@@ -88,39 +116,61 @@ function Forecast() {
 
     return (
 
-        <div>
+        <div className="space-y-8">
 
-            <h1 className="text-3xl font-bold">
-                Sales Forecasting
-            </h1>
+            <div>
 
-            <p className="text-gray-500 mt-2">
-                Predict future values using AI.
-            </p>
+                <h1 className="text-3xl font-bold">
 
-            <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
+                    📈 Sales Forecasting
 
-                <div className="grid grid-cols-2 gap-6">
+                </h1>
+
+                <p className="text-gray-500 mt-2">
+
+                    Predict future business performance using AI.
+
+                </p>
+
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+
+                <div className="grid md:grid-cols-2 gap-6">
 
                     <div>
 
                         <label className="font-semibold">
-                            Select Numeric Column
+
+                            Forecast Column
+
                         </label>
 
                         <select
+
                             className="w-full border rounded-xl p-3 mt-2"
+
                             value={column}
+
                             onChange={(e)=>setColumn(e.target.value)}
+
                         >
 
                             <option value="">
-                                Select
+
+                                Select Column
+
                             </option>
 
                             {datasetInfo.numeric_columns.map(col=>(
 
-                                <option key={col} value={col}>
+                                <option
+
+                                    key={col}
+
+                                    value={col}
+
+                                >
 
                                     {col}
 
@@ -135,14 +185,21 @@ function Forecast() {
                     <div>
 
                         <label className="font-semibold">
-                            Forecast Days
+
+                            Forecast Horizon
+
                         </label>
 
                         <input
+
                             type="number"
+
                             className="w-full border rounded-xl p-3 mt-2"
+
                             value={periods}
+
                             onChange={(e)=>setPeriods(e.target.value)}
+
                         />
 
                     </div>
@@ -151,146 +208,301 @@ function Forecast() {
 
                 <button
 
+                    disabled={loading}
+
                     onClick={generateForecast}
 
-                    className="mt-8 bg-blue-600 text-white px-8 py-3 rounded-xl"
+                    className={`
+
+                        mt-8
+
+                        px-8
+
+                        py-3
+
+                        rounded-xl
+
+                        text-white
+
+                        ${loading
+
+                            ? "bg-gray-400 cursor-not-allowed"
+
+                            : "bg-blue-600 hover:bg-blue-700"}
+
+                    `}
 
                 >
 
-                    {loading ? "Generating..." : "Generate Forecast"}
+                    {loading
+
+                        ? "⏳ Generating Forecast..."
+
+                        : "Generate Forecast"}
 
                 </button>
 
             </div>
+
             {forecast.length > 0 && (
 
-<div className="grid grid-cols-3 gap-6 mt-8">
+                <div className="grid lg:grid-cols-4 gap-6">
 
-    <div className="bg-white rounded-xl shadow-lg p-6">
+                    <div className="bg-white rounded-xl shadow-lg p-6">
 
-        <h3 className="text-gray-500">
-            Average Prediction
-        </h3>
+                        <h3 className="text-gray-500">
 
-        <p className="text-3xl font-bold mt-2 text-blue-600">
+                            Average Prediction
 
-            ₹{
-                (
-                    forecast.reduce((sum, item) => sum + item.prediction, 0)
-                    / forecast.length
-                ).toFixed(0)
-            }
+                        </h3>
 
-        </p>
+                        <p className="text-3xl font-bold text-blue-600 mt-3">
 
-    </div>
+                            ₹{
 
-    <div className="bg-white rounded-xl shadow-lg p-6">
+                                (
 
-        <h3 className="text-gray-500">
-            Maximum Prediction
-        </h3>
+                                    forecast.reduce(
 
-        <p className="text-3xl font-bold mt-2 text-green-600">
+                                        (sum,item)=>sum+item.prediction,
 
-            ₹{
-                Math.max(...forecast.map(item => item.prediction)).toFixed(0)
-            }
+                                        0
 
-        </p>
+                                    )
 
-    </div>
+                                    /
 
-    <div className="bg-white rounded-xl shadow-lg p-6">
+                                    forecast.length
 
-        <h3 className="text-gray-500">
-            Minimum Prediction
-        </h3>
+                                ).toFixed(0)
 
-        <p className="text-3xl font-bold mt-2 text-red-600">
+                            }
 
-            ₹{
-                Math.min(...forecast.map(item => item.prediction)).toFixed(0)
-            }
+                        </p>
 
-        </p>
+                    </div>
 
-    </div>
+                    <div className="bg-white rounded-xl shadow-lg p-6">
 
-</div>
+                        <h3 className="text-gray-500">
 
-)}
+                            Maximum Prediction
 
-            {/* Forecast Table */}
+                        </h3>
 
-           {forecast.length > 0 && (
+                        <p className="text-3xl font-bold text-green-600 mt-3">
 
-<div className="bg-white rounded-2xl shadow-lg mt-8 p-6">
+                            ₹{
 
-    <h2 className="text-2xl font-bold mb-6">
+                                Math.max(
 
-        Sales Forecast
+                                    ...forecast.map(
 
-    </h2>
+                                        item=>item.prediction
 
-    <ResponsiveContainer
-        width="100%"
-        height={450}
-    >
+                                    )
 
-        <LineChart
-            data={forecast}
-        >
+                                ).toFixed(0)
 
-            <CartesianGrid strokeDasharray="3 3"/>
+                            }
 
-            <XAxis
-                dataKey="date"
-            />
+                        </p>
 
-            <YAxis/>
+                    </div>
 
-            <Tooltip/>
+                    <div className="bg-white rounded-xl shadow-lg p-6">
 
-            <Line
-                type="monotone"
-                dataKey="prediction"
-                stroke="#2563eb"
-                strokeWidth={3}
-            />
+                        <h3 className="text-gray-500">
 
-        </LineChart>
+                            Minimum Prediction
 
-    </ResponsiveContainer>
+                        </h3>
 
-</div>
+                        <p className="text-3xl font-bold text-red-600 mt-3">
 
-)}
-{aiAnalysis && (
+                            ₹{
 
-<div className="bg-white rounded-2xl shadow-lg mt-8 p-6">
+                                Math.min(
 
-    <h2 className="text-2xl font-bold mb-5">
+                                    ...forecast.map(
 
-        🤖 AI Forecast Analysis
+                                        item=>item.prediction
 
-    </h2>
+                                    )
 
-    <div className="bg-blue-50 rounded-xl p-5">
+                                ).toFixed(0)
 
-        <p className="whitespace-pre-wrap text-gray-700 leading-8">
+                            }
 
-            {aiAnalysis}
+                        </p>
 
-        </p>
+                    </div>
 
-    </div>
+                    <div className="bg-white rounded-xl shadow-lg p-6">
 
-</div>
+                        <h3 className="text-gray-500">
 
-)}
+                            Expected Growth
 
-            
+                        </h3>
+
+                        <p className="text-3xl font-bold text-purple-600 mt-3">
+
+                            {growth.toFixed(2)}%
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            )}
+                        {forecast.length === 0 && !loading && (
+
+                <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
+
+                    <h2 className="text-2xl font-bold">
+
+                        📈 Forecast Preview
+
+                    </h2>
+
+                    <p className="text-gray-500 mt-4">
+
+                        Select a numeric column and generate a forecast to visualize future trends.
+
+                    </p>
+
+                </div>
+
+            )}
+
+            {forecast.length > 0 && (
+
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+
+                    <h2 className="text-2xl font-bold mb-6">
+
+                        Forecast Trend
+
+                    </h2>
+
+                    <ResponsiveContainer
+                        width="100%"
+                        height={450}
+                    >
+
+                        <LineChart
+                            data={forecast}
+                        >
+
+                            <CartesianGrid strokeDasharray="3 3" />
+
+                            <XAxis
+                                dataKey="date"
+                            />
+
+                            <YAxis />
+
+                            <Tooltip />
+
+                            <Line
+
+                                type="monotone"
+
+                                dataKey="prediction"
+
+                                stroke="#2563eb"
+
+                                strokeWidth={4}
+
+                                dot={false}
+
+                                activeDot={{ r: 6 }}
+
+                            />
+
+                        </LineChart>
+
+                    </ResponsiveContainer>
+
+                </div>
+
+            )}
+
+            {forecast.length > 0 && (
+
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+
+                    <h2 className="text-2xl font-bold mb-6">
+
+                        Forecast Summary
+
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+
+                        <div className="bg-gray-50 rounded-xl p-5">
+
+                            <h3 className="font-semibold">
+
+                                Forecast Horizon
+
+                            </h3>
+
+                            <p className="text-3xl font-bold mt-2 text-blue-600">
+
+                                {periods} Days
+
+                            </p>
+
+                        </div>
+
+                        <div className="bg-gray-50 rounded-xl p-5">
+
+                            <h3 className="font-semibold">
+
+                                Forecast Records
+
+                            </h3>
+
+                            <p className="text-3xl font-bold mt-2 text-green-600">
+
+                                {forecast.length}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
+
+            {aiAnalysis && (
+
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+
+                    <h2 className="text-2xl font-bold mb-6">
+
+                        🤖 AI Business Insights
+
+                    </h2>
+
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+
+                        <p className="whitespace-pre-wrap leading-8 text-gray-700">
+
+                            {aiAnalysis}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            )}
 
         </div>
 
