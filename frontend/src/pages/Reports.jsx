@@ -12,117 +12,81 @@ import AISummary from "../components/Reports/AISummary";
 import Charts from "../components/Charts/Charts";
 
 function Reports() {
-
     const { datasetInfo } = useDataset();
 
     if (!datasetInfo) {
-
         return (
-
-            <div className="flex justify-center items-center h-[70vh]">
-
-                <h2 className="text-3xl font-bold text-gray-600">
-
+            <div className="w-full min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center text-center px-4">
+                <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-zinc-50 via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
                     Upload a dataset first 📂
-
                 </h2>
-
+                <p className="text-sm font-medium text-zinc-500 tracking-wide mt-4 max-w-sm">
+                    Please head over to the Dashboard tab to process a data asset before rendering reports.
+                </p>
             </div>
-
         );
-
     }
 
     return (
+        <div className="w-full min-h-screen bg-zinc-950 text-zinc-100 p-6 space-y-8 antialiased">
+            <div className="max-w-7xl mx-auto space-y-8">
+                
+                {/* Custom Report Layout Banner */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <ReportHeader datasetInfo={datasetInfo} />
+                </div>
 
-        <div className="space-y-8">
+                {/* Executive Content Section */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <ExecutiveSummary datasetInfo={datasetInfo} />
+                </div>
 
-            {/* Report Header */}
+                {/* Functional Action Options Block */}
+                <div className="w-full flex justify-end">
+                    <ReportActions />
+                </div>
 
-            <ReportHeader
-                datasetInfo={datasetInfo}
-            />
+                {/* Local Analytical Overview Component */}
+                <div className="space-y-4">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 pl-1">
+                        Dataset Summary
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                        <SummaryCard title="Rows" value={datasetInfo.rows} />
+                        <SummaryCard title="Columns" value={datasetInfo.columns} />
+                        <SummaryCard title="Duplicates" value={datasetInfo.duplicates} />
+                        <SummaryCard title="Missing Values" value={datasetInfo.missing_values} />
+                    </div>
+                </div>
 
-            {/* Executive Summary */}
+                {/* Segmentation: Top Performers Table Wrapper */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <TopPerformers topPerformers={datasetInfo.top_performers} />
+                </div>
 
-            <ExecutiveSummary
-                datasetInfo={datasetInfo}
-            />
+                {/* Structuring Matrix Table Data Previews */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <ReportTable datasetInfo={datasetInfo} />
+                </div>
 
-            {/* Download Button */}
+                {/* Visualization Components Rendering Engine */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <Charts data={datasetInfo.data} />
+                </div>
 
-            <ReportActions />
+                {/* Business Model Analysis Insight Block */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <BusinessInsights datasetInfo={datasetInfo} />
+                </div>
 
-            {/* Dataset Summary */}
-
-            <div>
-
-                <h2 className="text-2xl font-bold mb-6">
-
-                    Dataset Summary
-
-                </h2>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                    <SummaryCard
-                        title="Rows"
-                        value={datasetInfo.rows}
-                    />
-
-                    <SummaryCard
-                        title="Columns"
-                        value={datasetInfo.columns}
-                    />
-
-                    <SummaryCard
-                        title="Duplicates"
-                        value={datasetInfo.duplicates}
-                    />
-
-                    <SummaryCard
-                        title="Missing Values"
-                        value={datasetInfo.missing_values}
-                    />
-
+                {/* Text Streaming LLM Summary Block Area */}
+                <div className="w-full bg-zinc-900 border border-zinc-800/80 rounded-xl p-6 shadow-xl">
+                    <AISummary summary={datasetInfo.ai_summary} />
                 </div>
 
             </div>
-
-            {/* Top Performers */}
-
-            <TopPerformers
-                topPerformers={datasetInfo.top_performers}
-            />
-
-            {/* Dataset Preview */}
-
-            <ReportTable
-                datasetInfo={datasetInfo}
-            />
-
-            {/* Charts */}
-
-            <Charts
-                data={datasetInfo.data}
-            />
-
-            {/* AI Insights */}
-
-            <BusinessInsights
-                datasetInfo={datasetInfo}
-            />
-
-            {/* AI Summary */}
-
-            <AISummary
-                summary={datasetInfo.ai_summary}
-            />
-
         </div>
-
     );
-
 }
 
 export default Reports;

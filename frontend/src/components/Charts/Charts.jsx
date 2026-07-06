@@ -14,57 +14,36 @@ function Charts({ data }) {
         return null;
 
     return (
+        <div className="w-full flex flex-col items-center justify-center text-center">
 
-        <div className="mt-8">
+            {/* Render controls neatly at the top */}
+            <div className="w-full flex justify-center mb-6">
+                <ChartControls />
+            </div>
 
-            <ChartControls />
+            {/* Seamless wrapper for the inner charts */}
+            <div className="w-full bg-zinc-950/30 border border-zinc-800/80 rounded-xl p-6 shadow-inner flex justify-center items-center">
+                <div className="w-full flex justify-center items-center text-zinc-100">
+                    {chartType === "Bar" && (
+                        <BarChartComponent data={data} />
+                    )}
 
-            <h2 className="text-2xl font-bold mb-6">
+                    {chartType === "Line" && (
+                        <LineChartComponent data={data} />
+                    )}
 
-                Analytics Dashboard
+                    {chartType === "Pie" && (
+                        <PieChartComponent data={data} />
+                    )}
 
-            </h2>
-
-            <div className="bg-white rounded-2xl shadow-lg p-4">
-
-                {chartType === "Bar" && (
-
-                    <BarChartComponent
-                        data={data}
-                    />
-
-                )}
-
-                {chartType === "Line" && (
-
-                    <LineChartComponent
-                        data={data}
-                    />
-
-                )}
-
-                {chartType === "Pie" && (
-
-                    <PieChartComponent
-                        data={data}
-                    />
-
-                )}
-
-                {chartType === "Scatter" && (
-
-                    <ScatterChartComponent
-                        data={data}
-                    />
-
-                )}
-
+                    {chartType === "Scatter" && (
+                        <ScatterChartComponent data={data} />
+                    )}
+                </div>
             </div>
 
         </div>
-
     );
-
 }
 
 export default Charts;

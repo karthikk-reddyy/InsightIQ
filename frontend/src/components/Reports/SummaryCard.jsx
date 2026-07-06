@@ -1,25 +1,14 @@
 function SummaryCard({ title, value }) {
-
     return (
-
-        <div className="bg-white rounded-2xl shadow-md p-5">
-
-            <h3 className="text-gray-500 text-sm">
-
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col items-center justify-center text-center shadow-md transition-all hover:border-zinc-700/50">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">
                 {title}
-
             </h3>
-
-            <p className="text-2xl font-bold mt-2">
-
+            <p className="text-xl font-extrabold text-zinc-100 mt-1">
                 {value}
-
             </p>
-
         </div>
-
     );
-
 }
 
 export default SummaryCard;

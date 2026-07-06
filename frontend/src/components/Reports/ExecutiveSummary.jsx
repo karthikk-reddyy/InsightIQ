@@ -5,85 +5,64 @@ function ExecutiveSummary({ datasetInfo }) {
     const today = new Date();
 
     return (
-
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg p-8 mt-8">
-
-            <h2 className="text-3xl font-bold mb-6">
-
-                Executive Summary
-
+        <div className="w-full bg-transparent flex flex-col">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-2">
+                <span>📋</span> Executive Summary
             </h2>
+            
+            <div className="w-full bg-zinc-950/40 border border-zinc-800 rounded-xl p-5 shadow-inner">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-xs font-medium text-zinc-400">
+                    
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
+                            <span className="text-zinc-500">Dataset Quality</span>
+                            <span className="text-zinc-200 font-bold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {datasetInfo.quality}
+                            </span>
+                        </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
+                            <span className="text-zinc-500">Primary KPI</span>
+                            <span className="text-indigo-400 font-bold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {datasetInfo.kpis.column}
+                            </span>
+                        </div>
 
-                <div>
+                        <div className="flex items-center justify-between md:border-none pb-2 md:pb-0">
+                            <span className="text-zinc-500">Total {datasetInfo.kpis.column}</span>
+                            <span className="text-emerald-400 font-extrabold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {datasetInfo.kpis.total.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
 
-                    <p>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
+                            <span className="text-zinc-500">Report Generated</span>
+                            <span className="text-zinc-300 font-bold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {today.toLocaleDateString()}
+                            </span>
+                        </div>
 
-                        <b>Dataset Quality :</b>
+                        <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
+                            <span className="text-zinc-500">Rows</span>
+                            <span className="text-zinc-200 font-bold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {datasetInfo.rows}
+                            </span>
+                        </div>
 
-                        {" "}
-                        {datasetInfo.quality}
-
-                    </p>
-
-                    <p className="mt-3">
-
-                        <b>Primary KPI :</b>
-
-                        {" "}
-                        {datasetInfo.kpis.column}
-
-                    </p>
-
-                    <p className="mt-3">
-
-                        <b>Total {datasetInfo.kpis.column} :</b>
-
-                        {" "}
-                        {datasetInfo.kpis.total.toLocaleString()}
-
-                    </p>
-
-                </div>
-
-                <div>
-
-                    <p>
-
-                        <b>Report Generated :</b>
-
-                        {" "}
-                        {today.toLocaleDateString()}
-
-                    </p>
-
-                    <p className="mt-3">
-
-                        <b>Rows :</b>
-
-                        {" "}
-                        {datasetInfo.rows}
-
-                    </p>
-
-                    <p className="mt-3">
-
-                        <b>Columns :</b>
-
-                        {" "}
-                        {datasetInfo.columns}
-
-                    </p>
+                        <div className="flex items-center justify-between">
+                            <span className="text-zinc-500">Columns</span>
+                            <span className="text-zinc-200 font-bold bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+                                {datasetInfo.columns}
+                            </span>
+                        </div>
+                    </div>
 
                 </div>
-
             </div>
-
         </div>
-
     );
-
 }
 
 export default ExecutiveSummary;
