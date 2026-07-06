@@ -5,14 +5,22 @@ InsightIQ is a full-stack Business Intelligence platform that enables users to u
 ---
 
 ## 📸 Project Preview
-
-> Add screenshots here after deployment.
-
 - Dashboard
-- Reports
-- Forecasting
-- Charts
+  <img width="945" height="473" alt="Screenshot 2026-07-06 140510" src="https://github.com/user-attachments/assets/c68261b2-8939-4e4e-9438-ca769181b712" />
+  <img width="945" height="473" alt="Screenshot 2026-07-06 140510" src="https://github.com/user-attachments/assets/5049cbe5-b6a9-46a1-a38c-0349588f05e2" />
+
 - AI Insights
+<img width="955" height="476" alt="Screenshot 2026-07-06 141109" src="https://github.com/user-attachments/assets/b2336652-5821-4110-95a6-d6c54140650c" />
+<img width="955" height="476" alt="Screenshot 2026-07-06 141109" src="https://github.com/user-attachments/assets/ac1b7ae8-06d7-41e9-bd45-ebf2caeb3411" />
+- Forecasting
+<img width="943" height="454" alt="Screenshot 2026-07-06 141318" src="https://github.com/user-attachments/assets/b9431ce2-cff4-4624-9251-9a1138d10751" />
+
+- Reports
+  <img width="959" height="475" alt="Screenshot 2026-07-06 141335" src="https://github.com/user-attachments/assets/ac04cc8b-6053-4d13-b1fc-318eb623140e" />
+
+  
+
+
 
 ---
 
